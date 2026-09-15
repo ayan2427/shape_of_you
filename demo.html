@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive Virtual Try-On</title>
+    <style>
+        /* Reset and prevent scrolling */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0a0202;
+            font-family: -apple-system, "Segoe UI", sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* --- START SCREEN UI --- */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 50; /* Stays on top until clicked */
+            background: radial-gradient(ellipse at center, #2a0505 0%, #0a0202 70%);
+        }
+
+        .start-btn {
+            background-color: #f0002b;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, .18);
+            padding: 16px 34px;
+            margin: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            cursor: pointer;
+            border-radius: 12px;
+            width: 260px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, .4);
+            transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+        }
+
+        .start-btn:hover {
+            background-color: #ff1742;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, .5), 0 0 20px rgba(240, 0, 43, .3);
+        }
+
+        /* --- IMMERSIVE CAMERA UI (Hidden initially) --- */
+        #app-container {
+            display: none; /* Hidden until Scan Face is clicked */
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #vto-iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1; 
+        }
+        
+        .top-toggle-container {
+            position: absolute;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            background: rgba(20, 5, 6, .55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 30px;
+            padding: 4px;
+            z-index: 10;
+        }
+
+        .top-btn {
+            background: transparent;
+            color: #ccc;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .top-btn.active {
+            background: #f0002b;
+            color: #fff;
+            box-shadow: 0 0 14px rgba(240, 0, 43, .5);
+        }
+
+        .carousel-container {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .product-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #fff, #e8ddc8);
+            border: 2px solid rgba(255, 255, 255, .25);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .35), inset 0 0 10px rgba(218, 165, 32, 0.5);
+        }
+
+        .product-circle:hover {
+            transform: translateY(-3px);
+        }
+
+        .product-circle.active {
+            width: 78px;
+            height: 78px;
+            border: 3px solid #ff2b46;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .5), 0 0 18px rgba(255, 43, 70, .45);
+        }
+
+        .bottom-category-container {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            background: rgba(20, 5, 6, .55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 20px;
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .cat-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border: none;
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .cat-btn.active {
+            background: #f0002b;
+            color: #fff;
+        }
+        .close-btn {
+            position: absolute;
+            top: 32px;
+            right: 32px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, .18);
+            background: rgba(20, 5, 6, .55);
+            backdrop-filter: blur(14px);
+            color: #fff;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 10;
+            transition: .25s ease;
+        }
+        .close-btn:hover {
+            background: #f0002b;
+        }
+
+        #loading-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            color: #eee;
+            font-size: 14px;
+            letter-spacing: .3px;
+            z-index: 5;
+        }
+
+        #loading-text::before {
+            content: "";
+            width: 34px;
+            height: 34px;
+            border: 3px solid rgba(255, 255, 255, .2);
+            border-top-color: #ff2b46;
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- START SCREEN -->
+    <div id="start-screen">
+        <button class="start-btn" id="btn-upload">Upload your image</button>
+        <button class="start-btn" id="btn-scan">Scan face</button>
+    </div>
+
+    <!-- IMMERSIVE VTO SCREEN -->
+    <div id="app-container">
+        <!-- Iframe URL is initially empty. It loads when Scan Face is clicked -->
+        <iframe
+            id="vto-iframe"
+            title="Virtual Try-On"
+            allow="camera; microphone"
+            referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+        <button id="close-btn" class="close-btn">&times;</button>
+        <div id="loading-text">Loading Camera...</div>
+
+        <!-- TOP UI OVERLAY -->
+        <div class="top-toggle-container">
+            <button class="top-btn active" id="btn-live">Live View</button>
+            <button class="top-btn" id="btn-photo">Photo</button>
+        </div>
+
+        <!-- MIDDLE CAROUSEL OVERLAY -->
+        <div class="carousel-container" id="carousel">
+            <!-- Circles injected via JavaScript -->
+        </div>
+
+        <!-- BOTTOM CATEGORY OVERLAY -->
+        <div class="bottom-category-container">
+            <button class="cat-btn" id="cat-earrings">Earrings</button>
+            <button class="cat-btn active" id="cat-necklace">Necklace</button>
+            <!-- Added Bangles Option -->
+            <button class="cat-btn" id="cat-bangle">Bangles</button>
+        </div>
+    </div>
+
+    <script>
+        const VTO_URL = "https://jewel-aug-dev.adamastech.org/shape-of-you/overlay-preview-alt";
+        
+        // Data sources mapping to standard catalog SKUs
+        const catalog = {
+            "NECKLACE": [
+                { sku: "PDL-D000612417", image: "https://example.com/images/PDL-D000612417.jpg" },
+                { sku: "PN-D000619089", image: "https://example.com/images/PN-D000619089.jpg" },
+                { sku: "DGN-D000657504", image: "https://example.com/images/DGN-D000657504.jpg" },
+                { sku: "GN-D000330078", image: "https://example.com/images/GN-D000330078.jpg" },
+                { sku: "GN-D000782874", image: "https://example.com/images/GN-D000782874.jpg" }
+            ],
+            "EARRING": [
+                { sku: "DT-D000255080", image: "https://example.com/images/DT-D000255080.jpg" },
+                { sku: "DT-D000255074", image: "https://example.com/images/DT-D000255074.jpg" },
+                { sku: "DT-D000255082", image: "https://example.com/images/DT-D000255082.jpg" },
+                { sku: "DT-D000255066", image: "https://example.com/images/DT-D000255066.jpg" },
+                { sku: "DT-D000528004", image: "https://example.com/images/DT-D000528004.jpg" }
+            ],
+            "BANGLE": [
+                { sku: "GSC-D000277049", image: "https://example.com/images/GSC-D000277049.jpg" },
+                { sku: "BANGLE-SKU-2", image: "https://example.com/images/bangle2.jpg" },
+                { sku: "BANGLE-SKU-3", image: "https://example.com/images/bangle3.jpg" }
+            ]
+        };
+
+        let currentCategory = "NECKLACE";
+        let iframeReady = false;
+        
+        const startScreen = document.getElementById('start-screen');
+        const appContainer = document.getElementById('app-container');
+        const iframe = document.getElementById('vto-iframe');
+        const carousel = document.getElementById('carousel');
+        const loadingText = document.getElementById('loading-text');
+
+        // --- START SCREEN LOGIC ---
+        document.getElementById('btn-upload').addEventListener('click', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Photo Mode Unavailable',
+                text: 'Photo upload is not supported by this VTO widget. Returning to Live View.',
+                background: '#1a1a1a', 
+                color: '#fff',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        });
+
+        document.getElementById('btn-scan').addEventListener('click', () => {
+            // Hide start screen, show immersive UI
+            startScreen.style.display = "none";
+            appContainer.style.display = "block";
+            loadingText.style.display = "flex";
+
+            // Trigger the iframe to load the camera
+            if (!iframe.src) {
+                iframe.src = VTO_URL;
+            }
+        });
+
+        // --- VTO LOGIC ---
+        window.addEventListener("message", (event) => {
+            const data = event.data || {};
+            if (data.type === "overlay-preview-ready") {
+                iframeReady = true;
+                loadingText.style.display = "none";
+                
+                renderCarousel(currentCategory);
+                // Access the SKU property from the updated catalog object
+                sendSinglePayload(currentCategory, catalog[currentCategory][2].sku); 
+            }
+        });
+
+        function sendSinglePayload(category, sku) {
+            if (!iframeReady || !iframe.contentWindow) return;
+
+            const payload = {
+                type: "overlay-products",
+                category: category,
+                overlay_config_type: "single_category",
+                product_ids: [sku],
+                items: [{ product_id: sku, category: category }]
+            };
+            
+            iframe.contentWindow.postMessage(payload, "*");
+        }
+
+        function renderCarousel(categoryName) {
+            carousel.innerHTML = ""; 
+            const items = catalog[categoryName];
+            
+            items.slice(0, 5).forEach((item, index) => {
+                const circle = document.createElement('div');
+                circle.className = 'product-circle';
+                // Add styling to ensure the image fits well inside the circle
+                circle.style.overflow = 'hidden'; 
+                
+                let targetActiveIndex = Math.min(2, items.length - 1);
+                if (index === targetActiveIndex) circle.classList.add('active'); 
+                
+                // Create the image element instead of text
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.alt = item.sku;
+                // Style the image to cover the circle area properly
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover'; 
+                
+                circle.appendChild(img);
+                
+                circle.addEventListener('click', () => {
+                    document.querySelectorAll('.product-circle').forEach(c => c.classList.remove('active'));
+                    circle.classList.add('active');
+                    // Send the payload using the selected item's SKU
+                    sendSinglePayload(categoryName, item.sku);
+                });
+
+                carousel.appendChild(circle);
+            });
+        }
+
+        // --- UI CATEGORY TOGGLES ---
+        function switchCategory(buttonId, categoryStr) {
+            // Reset all buttons
+            ['cat-earrings', 'cat-necklace', 'cat-bangle'].forEach(id => {
+                document.getElementById(id).classList.remove('active');
+            });
+            // Activate clicked button
+            document.getElementById(buttonId).classList.add('active');
+            currentCategory = categoryStr;
+            renderCarousel(categoryStr);
+        }
+        document.getElementById('close-btn').addEventListener('click', () => {
+            iframe.src = "";        // stops the camera stream inside the iframe
+            iframeReady = false;
+            appContainer.style.display = "none";
+            startScreen.style.display = "flex";
+        });
+        document.getElementById('cat-earrings').addEventListener('click', () => switchCategory('cat-earrings', 'EARRING'));
+        document.getElementById('cat-necklace').addEventListener('click', () => switchCategory('cat-necklace', 'NECKLACE'));
+        document.getElementById('cat-bangle').addEventListener('click', () => switchCategory('cat-bangle', 'BANGLE'));
+
+        // Top pill alert
+        document.getElementById('btn-photo').addEventListener('click', () => {
+            Swal.fire({
+                icon: 'info',
+                title: 'Photo Mode Unavailable',
+                text: 'Photo upload is not supported by this VTO widget. Returning to Live View.',
+                background: '#1a1a1a', 
+                color: '#fff',
+                showConfirmButton: false,
+                timer: 1500
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

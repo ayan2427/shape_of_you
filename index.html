@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shape of You | Fine Jewelry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #f4ecda;
+    --ivory-dim: #e8dcc0;
+    --espresso: #1b110d;
+    --garnet: #5c1220;
+    --garnet-deep: #3c0b14;
+    --gold: #c8a24c;
+    --gold-light: #e9d38f;
+    --line: rgba(200, 162, 76, .45);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--espresso);
+  }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    color: var(--ivory);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  /* Frame ornament — corner brackets, evokes a jewelry-box edge */
+  .frame-corner {
+    position: fixed;
+    width: 46px;
+    height: 46px;
+    z-index: 50;
+    opacity: 0;
+    animation: cornerFade 1s ease forwards .4s;
+    pointer-events: none;
+  }
+  .frame-corner svg { width: 100%; height: 100%; }
+  .frame-corner.tl { top: 18px; left: 18px; }
+  .frame-corner.tr { top: 18px; right: 18px; transform: scaleX(-1); }
+  .frame-corner.bl { bottom: 18px; left: 18px; transform: scaleY(-1); }
+  .frame-corner.br { bottom: 18px; right: 18px; transform: scale(-1); }
+
+  @keyframes cornerFade {
+    to { opacity: .85; }
+  }
+
+  /* Seam between the two panels */
+  .seam {
+    position: fixed;
+    top: 6%;
+    bottom: 6%;
+    left: 50%;
+    width: 1px;
+    z-index: 40;
+    background: linear-gradient(to bottom, transparent, var(--gold) 20%, var(--gold-light) 50%, var(--gold) 80%, transparent);
+    animation: seamGlow 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes seamGlow {
+    0%, 100% { opacity: .35; }
+    50% { opacity: .8; }
+  }
+
+  /* ===== LEFT: VIDEO ===== */
+  .video-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    box-shadow: inset -14px 0 30px -20px rgba(0,0,0,.7);
+  }
+
+  .video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(1.05) contrast(1.03);
+  }
+
+  .video-container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(27,17,13,.25) 0%, transparent 22%, transparent 78%, rgba(27,17,13,.45) 100%);
+    pointer-events: none;
+  }
+
+  .video-label {
+    position: absolute;
+    bottom: 34px;
+    left: 34px;
+    z-index: 5;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: .5px;
+    color: var(--ivory);
+    text-shadow: 0 2px 10px rgba(0,0,0,.6);
+  }
+
+  /* ===== RIGHT: BACKGROUND SLIDER ===== */
+  .right-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: var(--espresso);
+  }
+
+  .slide-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+    transition: filter .6s ease;
+  }
+
+  .slide-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 35%, rgba(27,17,13,.55) 100%);
+  }
+
+  /* Facet-wipe overlay: diagonal grid, diamond-cut feel */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    z-index: 2;
+  }
+
+  .grid-cell {
+    background: linear-gradient(135deg, var(--garnet-deep), var(--espresso));
+    opacity: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: scale(1.03);
+    transition: opacity .28s ease, transform .32s ease;
+    border: 1px solid transparent;
+  }
+
+  .grid-cell.active {
+    opacity: 1;
+    border-color: rgba(200,162,76,.18);
+  }
+
+  /* Text plaque — engraved ivory card rather than dark glass */
+  .text-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 56px 48px;
+    background: var(--ivory);
+    color: var(--espresso);
+    border-radius: 2px;
+    max-width: 420px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 1px var(--line);
+    opacity: 0;
+    transform: translateY(14px);
+    animation: plaqueIn 1s cubic-bezier(.16,1,.3,1) forwards .3s;
+  }
+
+  @keyframes plaqueIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .plaque-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    margin-bottom: 18px;
+  }
+  .plaque-mark svg { width: 100%; height: 100%; }
+
+  .glow-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: clamp(2.2rem, 4vw, 3.3rem);
+    letter-spacing: 1px;
+    line-height: 1.05;
+    color: var(--garnet);
+    margin-bottom: 14px;
+  }
+
+  .rule {
+    width: 64px;
+    height: 1px;
+    margin: 0 auto 20px;
+    background: var(--gold);
+  }
+
+  .text-content p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #4a352c;
+    margin-bottom: 30px;
+    line-height: 1.65;
+    max-width: 34ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  button#explode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 34px;
+    font-family: 'Jost', sans-serif;
+    font-size: .92rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    background: var(--garnet);
+    color: var(--ivory);
+    border: 1px solid var(--garnet);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background .3s ease, box-shadow .3s ease, transform .2s ease;
+  }
+
+  button#explode-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: var(--gold-light);
+    transition: transform .3s ease;
+  }
+
+  button#explode-btn:hover {
+    background: var(--garnet-deep);
+    box-shadow: 0 8px 26px -6px rgba(92,18,32,.6);
+    transform: translateY(-2px);
+  }
+
+  button#explode-btn:hover svg { transform: translateX(5px); }
+
+  button#explode-btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  /* Responsive */
+  @media (max-width: 860px) {
+    body { grid-template-columns: 1fr; grid-template-rows: 46vh 54vh; }
+    .video-container, .right-section { height: auto; }
+    .seam { display: none; }
+    .text-content { max-width: 88%; padding: 40px 26px; }
+    .frame-corner { width: 32px; height: 32px; }
+    .video-label { bottom: 20px; left: 20px; font-size: .9rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame-corner, .seam, .text-content { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .grid-cell { transition: opacity .01s linear !important; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Frame ornament -->
+  <div class="frame-corner tl"><svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 46V14C2 7.373 7.373 2 14 2H46" stroke="#c8a24c" stroke-width="1"/><circle cx="14" cy="14" r="2.5" fill="#c8a24c"/></svg></div>
+  <div class="frame-corner tr"><svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 46V14C2 7.373 7.373 2 14 2H46" stroke="#c8a24c" stroke-width="1"/><circle cx="14" cy="14" r="2.5" fill="#c8a24c"/></svg></div>
+  <div class="frame-corner bl"><svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 46V14C2 7.373 7.373 2 14 2H46" stroke="#c8a24c" stroke-width="1"/><circle cx="14" cy="14" r="2.5" fill="#c8a24c"/></svg></div>
+  <div class="frame-corner br"><svg viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 46V14C2 7.373 7.373 2 14 2H46" stroke="#c8a24c" stroke-width="1"/><circle cx="14" cy="14" r="2.5" fill="#c8a24c"/></svg></div>
+
+  <div class="seam"></div>
+
+  <!-- LEFT: Video -->
+  <div class="video-container">
+    <video autoplay muted loop playsinline>
+      <source src="Static/vid.mp4" type="video/mp4">
+    </video>
+    <div class="video-label">The atelier, in motion</div>
+  </div>
+
+  <!-- RIGHT: Slider + plaque -->
+  <div class="right-section">
+    <div class="slide-bg" id="slide-bg"></div>
+    <div class="grid-overlay" id="grid-overlay"></div>
+
+    <div class="text-content">
+      <span class="plaque-mark">
+        <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17 3L27 13L17 31L7 13L17 3Z" stroke="#5c1220" stroke-width="1.2"/>
+          <path d="M7 13H27" stroke="#5c1220" stroke-width="1"/>
+          <path d="M13 13L17 3L21 13" stroke="#5c1220" stroke-width="1"/>
+        </svg>
+      </span>
+      <h1 class="glow-text">Shape of You</h1>
+      <div class="rule"></div>
+      <p>Every piece is cut and set to follow your own lines — a fit no catalogue size can offer.</p>
+      <button id="explode-btn">
+        Get Started
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- Video setup ---
+    const vid = document.querySelector('.video-container video');
+    vid.addEventListener('pause', () => vid.play());
+
+    // --- Button setup ---
+    document.getElementById('explode-btn').addEventListener('click', () => {
+      window.location.href = "launching.html";
+    });
+
+    // --- Facet-wipe image slider ---
+    const images = [
+      'Static/image_1.png',
+      'Static/image_2.png',
+      'Static/image_3.png',
+      'Static/image_4.png',
+      'Static/image_5.png',
+      'Static/image_6.png',
+      'Static/image_7.png',
+    ];
+
+    let currentIndex = 0;
+    const slideBg = document.getElementById('slide-bg');
+    const gridOverlay = document.getElementById('grid-overlay');
+    const COLS = 2, ROWS = 6;
+    const cellDelays = [];
+
+    // Build 12 tiles, each tagged with a diagonal delay so the wipe
+    // sweeps corner-to-corner like light crossing a cut gem, rather
+    // than a flat top-to-bottom cascade.
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'grid-cell';
+        const diagonalStep = r + c;
+        cellDelays.push(diagonalStep);
+        gridOverlay.appendChild(cell);
+      }
+    }
+
+    const cells = document.querySelectorAll('.grid-cell');
+    const maxStep = Math.max(...cellDelays);
+    const STEP_MS = 55;
+
+    slideBg.style.backgroundImage = `url(${images[currentIndex]})`;
+
+    function sweep(show, onDone) {
+      cells.forEach((cell, i) => {
+        setTimeout(() => {
+          cell.classList.toggle('active', show);
+        }, cellDelays[i] * STEP_MS);
+      });
+      setTimeout(onDone, (maxStep * STEP_MS) + 260);
+    }
+
+    function changeSlide() {
+      sweep(true, () => {
+        currentIndex = (currentIndex + 1) % images.length;
+        slideBg.style.backgroundImage = `url(${images[currentIndex]})`;
+        sweep(false, () => {});
+      });
+    }
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion) {
+      setInterval(changeSlide, 4200);
+    } else {
+      setInterval(() => {
+        currentIndex = (currentIndex + 1) % images.length;
+        slideBg.style.backgroundImage = `url(${images[currentIndex]})`;
+      }, 4200);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shape of You</title>
+
+  <!-- SweetAlert2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f7fbff;
+    }
+
+    .launching-page {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+      isolation: isolate;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7fbff;
+    }
+
+    .background {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: -5;
+      opacity: .16;
+      filter: saturate(.7) brightness(1.18);
+      transform: scale(1.025);
+      animation: kenBurns 22s ease-in-out infinite alternate;
+    }
+
+    @keyframes kenBurns {
+      0%   { transform: scale(1.025) translate3d(0, 0, 0); }
+      100% { transform: scale(1.09) translate3d(-1.2%, -1%, 0); }
+    }
+
+    .red-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: -4;
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .focus-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      background: rgba(231, 243, 255, .62);
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      box-shadow:
+        inset 0 0 190px rgba(60, 110, 170, .12),
+        inset 0 -100px 180px rgba(30, 80, 140, .10);
+    }
+
+    #meshCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: .72;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 30px;
+      left: 32px;
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 26px;
+      color: #17324d;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .2px;
+      border: 1px solid rgba(255, 255, 255, .32);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 8px 24px rgba(31, 76, 120, .16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      transform: translateY(-12px);
+      animation: backIn .7s ease forwards 1.1s;
+      transition: .25s ease;
+    }
+
+    .back-button:hover {
+      background: #1769d1;
+      color: #fff;
+      border-color: #00bfff;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(22, 79, 135, .28), 0 0 20px rgba(0, 191, 255, .35);
+    }
+
+    /* --- START SCREEN UI --- */
+    #start-screen {
+      position: relative;
+      z-index: 5;
+      width: min(760px, 92vw);
+      text-align: center;
+      color: #102a43;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: -4vh;
+    }
+
+    .brand-title {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: clamp(58px, 7vw, 96px);
+      line-height: 1;
+      font-weight: 300;
+      letter-spacing: -5px;
+      text-shadow:
+        0 5px 28px rgba(34, 78, 120, .18),
+        0 0 35px rgba(27, 94, 170, .12);
+      perspective: 900px;
+      user-select: none;
+    }
+
+    .line {
+      display: block;
+      white-space: nowrap;
+      overflow: visible;
+    }
+
+    .letter {
+      display: inline-block;
+      opacity: 0;
+      filter: blur(10px);
+      transform:
+        translate3d(var(--x), var(--y), var(--z))
+        rotate(var(--r))
+        scale(var(--s));
+      transition:
+        transform 1.25s cubic-bezier(.16, 1, .3, 1),
+        opacity .7s ease,
+        filter 1.05s ease;
+      transition-delay: var(--delay);
+    }
+
+    .brand-title.animate .letter {
+      opacity: 1;
+      filter: blur(0);
+      transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    }
+
+    .brand-title.shine .letter {
+      color: #174a7c;
+    }
+
+    .of {
+      font-size: .65em;
+      font-weight: 400;
+      line-height: 1;
+      margin: 18px 0;
+      text-shadow: 0 4px 15px rgba(255, 255, 255, .8), 0 0 25px rgba(35, 112, 190, .22);
+    }
+
+    .you { margin-top: 6px; }
+
+    .tm {
+      display: inline-block;
+      vertical-align: top;
+      margin: 8px 0 0 6px;
+      font-size: 10px;
+      letter-spacing: 0;
+    }
+
+    .title-line {
+      width: 0;
+      height: 1px;
+      margin-top: 28px;
+      background: rgba(19, 91, 160, .72);
+      box-shadow: 0 0 15px rgba(24, 112, 196, .38);
+      transition: width 1s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .title-line.show {
+      width: 150px;
+      animation: linePulse 2.8s ease-in-out 1s infinite;
+    }
+
+    @keyframes linePulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .5; }
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 42px;
+      opacity: 0;
+      transform: translateY(28px) scale(.96);
+      pointer-events: none;
+    }
+
+    .actions.show {
+      animation: buttonsIn .9s cubic-bezier(.16, 1, .3, 1) forwards;
+      pointer-events: auto;
+    }
+
+    .action-button {
+      position: relative;
+      overflow: hidden;
+      min-width: 340px;
+      height: 68px;
+      padding: 0 40px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 14px;
+      background: #1769d1;
+      color: #fff;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      cursor: pointer;
+      box-shadow: 0 12px 34px rgba(22, 79, 135, .24), 0 0 0 rgba(23, 105, 209, 0);
+      transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
+    }
+
+    .action-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 45%;
+      height: 100%;
+      background: rgba(255, 255, 255, .24);
+      transform: skewX(-20deg);
+      transition: left .65s ease;
+    }
+
+    .action-button:hover::before { left: 130%; }
+
+    .action-button:hover {
+      background: #0f56b4;
+      transform: translateY(-3px);
+      box-shadow: 0 13px 32px rgba(22, 79, 135, .28), 0 0 25px rgba(23, 105, 209, .22);
+    }
+
+    .action-button:active { transform: translateY(0); }
+
+    .separator {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: .9;
+    }
+
+    .scan-corner {
+      position: absolute;
+      width: 300px;
+      height: 150px;
+      opacity: 0;
+      z-index: 3;
+      pointer-events: none;
+      transition: opacity .7s ease;
+    }
+
+    .scan-corner.active {
+      opacity: .6;
+      animation: cornerPulse 2.6s ease-in-out infinite;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: .62; filter: drop-shadow(0 0 0 rgba(0, 191, 255, 0)); }
+      50%      { opacity: 1;  filter: drop-shadow(0 0 8px rgba(0, 191, 255, .72)); }
+    }
+
+    .scan-corner.tl { top: 20%; left: 25%; border-top: 2px solid #00bfff; border-left: 2px solid #00bfff; }
+    .scan-corner.tr { top: 20%; right: 25%; border-top: 2px solid #00bfff; border-right: 2px solid #00bfff; }
+    .scan-corner.bl { bottom: 15%; left: 25%; border-bottom: 2px solid #00bfff; border-left: 2px solid #00bfff; }
+    .scan-corner.br { bottom: 15%; right: 25%; border-bottom: 2px solid #00bfff; border-right: 2px solid #00bfff; }
+
+    @keyframes buttonsIn {
+      0% { opacity: 0; transform: translateY(28px) scale(.96); }
+      65% { opacity: 1; transform: translateY(-4px) scale(1.015); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes backIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Common Close Button Style for overlays */
+    .close-btn {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, .18);
+        background: rgba(20, 5, 6, .55);
+        backdrop-filter: blur(14px);
+        color: #fff;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        z-index: 210;
+        transition: .25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .close-btn:hover { background: #f0002b; }
+
+    /* --- UPLOAD SCREEN UI --- */
+    #upload-screen {
+        display: none; 
+        position: absolute;
+        
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        
+        z-index: 200;
+        
+        background: #0a0203; 
+        overflow: hidden; 
+    }
+
+    #uploaded-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; 
+        object-position: center;
+        background: #000; 
+    }
+
+    #upload-close-btn {
+        top: 20px;
+        right: 20px;
+        z-index: 210;
+    }
+
+    .analysis-card {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(225, 225, 225, 0.85); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 20px; 
+        padding: 24px 20px;
+        width: 90%;
+        max-width: 420px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        text-align: center;
+        color: #111;
+        font-family: Arial, sans-serif;
+        border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    .analysis-stats {
+        display: flex;
+        justify-content: center;
+        gap: 60px;
+        margin-bottom: 16px;
+    }
+
+    .stat-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-value {
+        color: #ff002b; 
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin-top: 2px;
+    }
+
+    .analysis-desc { margin-bottom: 24px; }
+
+    .analysis-desc strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 8px;
+        color: #111;
+    }
+
+    .analysis-desc p {
+        font-size: 13px;
+        line-height: 1.5;
+        color: #555;
+        margin: 0 auto;
+        max-width: 95%;
+    }
+
+    .analysis-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .card-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 20px;
+        border-radius: 30px; 
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+    }
+
+    .card-btn:hover { transform: translateY(-2px); }
+
+    .secondary-btn {
+        background: #ffffff;
+        color: #000;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .primary-btn {
+        background: #00e676; 
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+    }
+
+    /* --- IMMERSIVE CAMERA UI (Scan Face & Photo View) --- */
+    #app-container {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 100;
+        background: #000;
+    }
+
+    /* Used to show the static uploaded image in Photo mode */
+    #vto-photo-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #000;
+        z-index: 0; 
+        display: none;
+    }
+
+    /* Overlay image returned by the real AR augmentation API (Photo mode only) */
+    #vto-photo-overlay-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: transparent;
+        z-index: 1;
+        display: none;
+        pointer-events: none;
+    }
+
+    #vto-iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        z-index: 1; 
+    }
+    
+    .top-toggle-container {
+        position: absolute;
+        top: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        background: rgba(20, 5, 6, .55);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 30px;
+        padding: 4px;
+        z-index: 10;
+    }
+
+    .top-btn {
+        background: transparent;
+        color: #ccc;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .top-btn.active {
+        background: #f0002b;
+        color: #fff;
+        box-shadow: 0 0 14px rgba(240, 0, 43, .5);
+    }
+
+    .carousel-container {
+        position: absolute;
+      bottom: 140px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+      justify-content: center;
+      min-height: 86px;
+      min-width: 220px;
+        gap: 16px;
+      padding: 8px 14px;
+      background: rgba(20, 5, 6, .78);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 18px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+      z-index: 20;
+      animation: catalogRise .7s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+    .carousel-container::before,
+    .carousel-container::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(218, 165, 32, .8);
+      transform: translateY(-50%) rotate(45deg);
+      pointer-events: none;
+    }
+
+    .carousel-container::before {
+      left: -15px;
+      background: #230407;
+      border-right: 0;
+      border-top: 0;
+    }
+
+    .carousel-container::after {
+      right: -15px;
+      background: #230407;
+      border-left: 0;
+      border-bottom: 0;
+    }
+
+    .product-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: #f4eadb;
+        border: 2px solid rgba(255, 255, 255, .25);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #333;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .35), inset 0 0 10px rgba(218, 165, 32, 0.5);
+        flex: 0 0 auto;
+        animation: productReveal .55s cubic-bezier(.16, 1, .3, 1) both;
+    }
+
+      .product-circle img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 50%;
+      }
+
+    .product-circle:hover { transform: translateY(-3px); }
+
+    .product-circle.active {
+        width: 78px;
+        height: 78px;
+        border: 3px solid #ff2b46;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .5), 0 0 18px rgba(255, 43, 70, .45);
+      animation: productReveal .55s cubic-bezier(.16, 1, .3, 1) both, activeJewellery 2.8s ease-in-out .55s infinite;
+    }
+
+    .bottom-category-container {
+        position: absolute;
+      bottom: 90px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        background: rgba(20, 5, 6, .55);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 20px;
+        z-index: 20;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+        animation: categoryRise .7s cubic-bezier(.16, 1, .3, 1) .12s both;
+        max-width: min(96vw, 620px);
+    }
+
+      .bottom-category-container::before {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border: 1px solid rgba(218, 165, 32, .28);
+        border-radius: 17px;
+        pointer-events: none;
+      }
+
+    .cat-btn {
+        background: transparent;
+        color: rgba(255, 255, 255, 0.7);
+        border: none;
+        padding: 10px 22px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.25s ease;
+        white-space: nowrap;
+    }
+
+    .cat-btn.active {
+        background: #f0002b;
+        color: #fff;
+        box-shadow: inset 0 -3px 0 #d9a521;
+    }
+
+    @keyframes catalogRise {
+      from { opacity: 0; transform: translate(-50%, 18px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes categoryRise {
+      from { opacity: 0; transform: translate(-50%, 18px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @keyframes productReveal {
+      from { opacity: 0; transform: translateY(18px) scale(.78); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes activeJewellery {
+      0%, 100% { box-shadow: 0 6px 20px rgba(0, 0, 0, .5), 0 0 12px rgba(255, 43, 70, .35); }
+      50% { box-shadow: 0 8px 24px rgba(0, 0, 0, .55), 0 0 24px rgba(218, 165, 32, .72); }
+    }
+
+    #loading-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        color: #eee;
+        font-size: 14px;
+        letter-spacing: .3px;
+        z-index: 5;
+    }
+
+    #loading-text::before {
+        content: "";
+        width: 34px;
+        height: 34px;
+        border: 3px solid rgba(255, 255, 255, .2);
+        border-top-color: #ff2b46;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+    }
+
+    /* Small inline loader for photo-mode AR overlay fetches */
+    #photo-ar-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        color: #eee;
+        font-size: 14px;
+        letter-spacing: .3px;
+        z-index: 6;
+    }
+
+    #photo-ar-loading::before {
+        content: "";
+        width: 34px;
+        height: 34px;
+        border: 3px solid rgba(255, 255, 255, .2);
+        border-top-color: #ff2b46;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+    }
+
+      #photo-guidance {
+        position: absolute;
+        top: auto;
+        bottom: 118px;
+        left: 50%;
+        z-index: 12;
+        width: min(500px, 86vw);
+        padding: 18px 22px;
+        transform: translateX(-50%);
+        color: #fff;
+        background: rgba(35, 0, 3, .78);
+        border: 1px solid rgba(255, 255, 255, .72);
+        border-radius: 10px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .42), 0 0 0 5px rgba(240, 0, 43, .16);
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.45;
+        text-align: center;
+        pointer-events: none;
+      }
+
+      #photo-guidance[hidden] { display: none; }
+
+    #scan-capture-video {
+      top: 5vh !important;
+      left: 7vw !important;
+      width: 86vw !important;
+      height: 70vh !important;
+      object-fit: contain !important;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 14px;
+      background: #120104 !important;
+    }
+
+    #scan-capture-btn {
+      bottom: 28px !important;
+    }
+
+    .scan-photo-actions {
+      position: absolute;
+      left: 50%;
+      bottom: 32px;
+      z-index: 12;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transform: translateX(-50%);
+    }
+
+    .scan-photo-action {
+      min-width: 118px;
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid rgba(255, 255, 255, .34);
+      border-radius: 12px;
+      color: #fff;
+      background: #9b3f35;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .3);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .scan-photo-action:hover {
+      background: #c05242;
+      box-shadow: 0 10px 24px rgba(155, 63, 53, .32);
+      transform: translateY(-2px);
+    }
+
+    .vto-reupload-btn {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      z-index: 25;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 210, 190, .7);
+      border-radius: 12px;
+      color: #fff;
+      background: #9b3f35;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .28);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transform: translateX(-50%);
+      transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+
+    .vto-reupload-btn:hover {
+      background: #c05242;
+      box-shadow: 0 10px 24px rgba(155, 63, 53, .32);
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .vto-reupload-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    @media (max-width: 700px) {
+      #scan-capture-video {
+        top: 4vh !important;
+        left: 3vw !important;
+        width: 94vw !important;
+        height: 68vh !important;
+      }
+
+      #photo-guidance {
+        bottom: 112px;
+        width: 92vw;
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+
+      .scan-photo-actions {
+        bottom: 50px;
+        width: calc(100% - 32px);
+      }
+
+      .scan-photo-action {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 10px 12px;
+      }
+
+      .vto-reupload-btn {
+        bottom: 10px;
+        min-height: 40px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* --- RESPONSIVE ADJUSTMENTS --- */
+    @media (max-width: 700px) {
+      .launching-page { min-height: 560px; }
+      .background { object-position: 58% center; }
+      #start-screen { margin-top: -7vh; }
+      .brand-title { font-size: clamp(52px, 15vw, 76px); letter-spacing: -4px; }
+      .of { margin-left: -40px; }
+      .you { margin-left: 40px; }
+      .actions { flex-direction: column; gap: 10px; margin-top: 30px; }
+      .action-button { width: min(380px, 90vw); height: 60px; }
+      .separator { display: none; }
+      .back-button { top: 18px; left: 18px; padding: 10px 18px; }
+      
+      .scan-corner.tl, .scan-corner.bl { left: 10%; }
+      .scan-corner.tr, .scan-corner.br { right: 10%; }
+
+      .close-btn { top: 15px; right: 15px; width: 36px; height: 36px; }
+      
+      .top-toggle-container { top: 20px; }
+      .carousel-container { bottom: 150px; width: 90%; justify-content: center; flex-wrap: wrap; gap: 10px; }
+      .carousel-container { min-height: 76px; padding: 6px 10px; }
+      .product-circle { width: 44px; height: 44px; }
+      .product-circle.active { width: 62px; height: 62px; }
+      .bottom-category-container { bottom: 105px; width: max-content; max-width: 96vw; overflow-x: auto; }
+      .cat-btn { padding: 8px 14px; font-size: 13px; }
+      
+      .analysis-card { width: 92%; padding: 20px 16px; bottom: 20px;}
+      .analysis-stats { gap: 40px; }
+      .analysis-actions { flex-direction: column; gap: 10px; }
+      .card-btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-container,
+      .bottom-category-container,
+      .product-circle,
+      .product-circle.active {
+        animation: none !important;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .letter { transition: none; opacity: 1; filter: none; transform: none; }
+      .actions, .back-button { animation: none !important; opacity: 1; transform: none; }
+      .title-line { width: 150px; animation: none !important; }
+      .background { animation: none !important; }
+      .scan-corner.active { animation: none !important; }
+      .brand-title.shine .letter {
+        animation: none !important; color: #fff;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="launching-page">
+    <img class="background" src="e4a91ee7-eb01-4037-98e2-8f3e5f8da72c.png" alt="" />
+    <div class="red-overlay"></div>
+    <div class="focus-overlay"></div>
+    <div class="vignette"></div>
+    <canvas id="meshCanvas"></canvas>
+
+    <div class="scan-corner tl"></div>
+    <div class="scan-corner tr"></div>
+    <div class="scan-corner bl"></div>
+    <div class="scan-corner br"></div>
+
+    <a class="back-button" href="index.html" aria-label="Go back">
+      <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg> Home</span>
+    </a>
+
+    <!-- START SCREEN -->
+    <section class="content" id="start-screen">
+      <h1 class="brand-title" id="brandTitle" aria-label="Shape of You">
+        <span class="line">
+          <span class="letter" style="--x:-240px;--y:-170px;--z:100px;--r:-18deg;--s:1.35;--delay:.05s">S</span>
+          <span class="letter" style="--x:-130px;--y:180px;--z:40px;--r:24deg;--s:.72;--delay:.12s">h</span>
+          <span class="letter" style="--x:180px;--y:-210px;--z:80px;--r:-31deg;--s:1.3;--delay:.19s">a</span>
+          <span class="letter" style="--x:270px;--y:140px;--z:20px;--r:29deg;--s:.68;--delay:.26s">p</span>
+          <span class="letter" style="--x:-300px;--y:60px;--z:70px;--r:-26deg;--s:1.15;--delay:.33s">e</span>
+        </span>
+        <span class="line of">
+          <span class="letter" style="--x:160px;--y:-130px;--z:50px;--r:20deg;--s:.75;--delay:.40s">o</span>
+          <span class="letter" style="--x:-180px;--y:130px;--z:90px;--r:-23deg;--s:1.2;--delay:.47s">f</span>
+        </span>
+        <span class="line you">
+          <span class="letter" style="--x:290px;--y:180px;--z:60px;--r:30deg;--s:.72;--delay:.54s">y</span>
+          <span class="letter" style="--x:-220px;--y:-160px;--z:80px;--r:-27deg;--s:1.3;--delay:.61s">o</span>
+          <span class="letter" style="--x:190px;--y:-180px;--z:40px;--r:22deg;--s:.8;--delay:.68s">u</span>
+          <span class="letter tm" style="--x:150px;--y:80px;--z:20px;--r:15deg;--s:1.2;--delay:.75s">™</span>
+        </span>
+      </h1>
+
+      <div class="title-line" id="titleLine"></div>
+
+      <div class="actions" id="actions">
+        <!-- Hidden file input for uploading -->
+        <input type="file" id="file-upload" accept="image/*" style="display: none;" />
+
+        <button class="action-button" id="btn-upload">
+          Upload your Image <svg class="ml-1" style="vertical-align: middle; margin-left: 8px;" width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22.5 12H22.5146" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M18.75 31.5H9C7.80653 31.5 6.66193 31.0259 5.81802 30.182C4.97411 29.3381 4.5 28.1935 4.5 27V9C4.5 7.80653 4.97411 6.66193 5.81802 5.81802C6.66193 4.97411 7.80653 4.5 9 4.5H27C28.1935 4.5 29.3381 4.97411 30.182 5.81802C31.0259 6.66193 31.5 7.80653 31.5 9V18.75" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.5 24L12 16.5C13.392 15.1605 15.108 15.1605 16.5 16.5L21.75 21.75" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 21L22.5 19.5C23.5185 18.5205 24.7095 18.2565 25.821 18.711" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M28.5 33V24" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M33 28.5L28.5 24L24 28.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+
+        <span class="separator">OR</span>
+
+        <button class="action-button" id="btn-scan">
+          Scan Face <svg class="ml-1" style="vertical-align: middle; margin-left: 8px;" width="20" height="20" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.5 4.5H7.5C5.84314 4.5 4.5 5.84314 4.5 7.5V10.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M25.5 4.5H28.5C30.1569 4.5 31.5 5.84314 31.5 7.5V10.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M22.5 13.5V16.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.5 13.5V16.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.5 22.5C13.5 22.5 15 24 18 24C21 24 22.5 22.5 22.5 22.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10.5 31.5001H7.5C5.84314 31.5001 4.5 30.157 4.5 28.5001V25.5001" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M25.5 31.5001H28.5C30.1569 31.5001 31.5 30.157 31.5 28.5001V25.5001" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- 1. UPLOAD IMAGE RESULT SCREEN -->
+    <div id="upload-screen">
+      <img id="uploaded-image" src="" alt="Uploaded Face" />
+      <button id="upload-close-btn" class="close-btn">&times;</button>
+      
+      <div class="analysis-card">
+          <!-- Loading State -->
+          <div id="analysis-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px; color: #333; font-weight: 600;">
+              <svg width="30" height="30" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#f0002b" style="margin-bottom: 15px; animation: spin 1s linear infinite;">
+                  <g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="2"><circle stroke-opacity=".5" cx="18" cy="18" r="18"/><path d="M36 18c0-9.94-8.06-18-18-18"/></g></g>
+              </svg>
+              Analyzing Face...
+          </div>
+
+          <!-- Result Content (Hidden until API returns) -->
+          <div id="analysis-content" style="display: none;">
+              <div class="analysis-stats">
+                  <div class="stat-col">
+                      <span class="stat-value" id="api-face-type"></span>
+                      <span class="stat-label">Face Type</span>
+                  </div>
+                  <div class="stat-col">
+                      <span class="stat-value" id="api-skin-tone"></span>
+                      <span class="stat-label">Skin Tone</span>
+                  </div>
+              </div>
+              
+              <div class="analysis-desc">
+                  <strong id="api-title"></strong>
+                  <p id="api-desc"></p>
+              </div>
+              
+              <div class="analysis-actions">
+                  <button id="btn-reupload-card" class="card-btn secondary-btn">
+                      Reupload Image 
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  </button>
+                  <button id="btn-explore-card" class="card-btn primary-btn">
+                      Explore Jewellery &rarr;
+                  </button>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <!-- 2. IMMERSIVE VTO SCREEN (Scan Face & Photo View) -->
+    <div id="app-container">
+      <video id="scan-capture-video" autoplay playsinline style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; background:#000; z-index:2; display:none;"></video>
+      <canvas id="scan-capture-canvas" style="display:none;"></canvas>
+      <button id="scan-capture-btn" style="display:none; position:absolute; bottom:220px; left:50%; transform:translateX(-50%); z-index:11; width:70px; height:70px; border-radius:50%; background:#fff; border:4px solid #f0002b; cursor:pointer;"></button>
+      <div id="photo-guidance" hidden>Free photo try-on: please take a clear photo with your face, ears, neck, and hands fully visible.</div>
+      <div class="scan-photo-actions" id="scan-photo-actions">
+        <button class="scan-photo-action" id="scan-retake-btn" type="button">Retake</button>
+      </div>
+      
+      <!-- Added Photo image element for the "Photo" tab view -->
+      <img id="vto-photo-img" src="" alt="VTO Photo" />
+
+      <!-- Overlay image returned by the real AR augmentation API (Photo mode only) -->
+      <img id="vto-photo-overlay-img" src="" alt="AR Overlay" />
+
+      <!-- Loader shown while the real AR API call is in flight (Photo mode only) -->
+      <div id="photo-ar-loading">Applying Jewellery...</div>
+
+      <iframe
+          id="vto-iframe"
+          title="Virtual Try-On"
+          allow="camera; microphone"
+          referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
+      <button id="vto-close-btn" class="close-btn">&times;</button>
+      <button id="vto-reupload-btn" class="vto-reupload-btn" type="button" aria-label="Reupload image">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Reupload Image</span>
+      </button>
+      <div id="loading-text">Loading Camera...</div>
+
+      <div class="top-toggle-container">
+          <button class="top-btn active" id="btn-live" type="button" aria-label="Use video mode">Video</button>
+          <button class="top-btn" id="btn-photo" type="button" aria-label="Use photo mode">Photo</button>
+      </div>
+
+      <div class="carousel-container" id="carousel">
+          <!-- Circles injected via JavaScript -->
+      </div>
+
+      <div class="bottom-category-container">
+          <button class="cat-btn" id="cat-earrings">Earrings</button>
+          <button class="cat-btn active" id="cat-necklace">Necklace</button>
+          <button class="cat-btn" id="cat-bangle">Bangles</button>
+          <button class="cat-btn" id="cat-ring">Rings</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* -----------------------------
+       TITLE INTRO ANIMATION
+       ----------------------------- */
+    const title = document.getElementById("brandTitle");
+    const titleLine = document.getElementById("titleLine");
+    const actions = document.getElementById("actions");
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        title.classList.add("animate");
+        document.querySelectorAll(".scan-corner").forEach(el => el.classList.add("active"));
+      }, 350);
+
+      setTimeout(() => { titleLine.classList.add("show"); }, 1450);
+      setTimeout(() => { actions.classList.add("show"); }, 1900);
+      setTimeout(() => { title.classList.add("shine"); }, 1600);
+    });
+
+    /* -----------------------------
+       ANIMATED MESH
+       ----------------------------- */
+    const canvas = document.getElementById("meshCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let points = [];
+    let width = 0;
+    let height = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function resizeCanvas() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      createPoints();
+    }
+
+    function createPoints() {
+      points = [];
+      const count = Math.min(115, Math.max(55, Math.floor(width / 15)));
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.pow(Math.random(), 0.72);
+        const x = width * 0.5 + Math.cos(angle) * width * 0.43 * radius;
+        const y = height * 0.47 + Math.sin(angle) * height * 0.45 * radius;
+        points.push({ x, y, ox: x, oy: y, vx: (Math.random() - .5) * .12, vy: (Math.random() - .5) * .12, phase: Math.random() * Math.PI * 2, size: Math.random() * 1.4 + .6 });
+      }
+    }
+
+    function animateMesh(time) {
+      ctx.clearRect(0, 0, width, height);
+      const maxDistance = Math.min(145, width * .11);
+
+      for (const p of points) {
+        p.x = p.ox + Math.sin(time * .00035 + p.phase) * 5;
+        p.y = p.oy + Math.cos(time * .0003 + p.phase) * 5;
+      }
+
+      for (let i = 0; i < points.length; i++) {
+        const a = points[i];
+        for (let j = i + 1; j < points.length; j++) {
+          const b = points[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < maxDistance) {
+            const alpha = (1 - distance / maxDistance) * .18;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(24, 112, 196, ${alpha})`;
+            ctx.lineWidth = .65;
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const p of points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(24, 112, 196, .58)";
+        ctx.fill();
+      }
+      requestAnimationFrame(animateMesh);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    requestAnimationFrame(animateMesh);
+
+
+    /* -----------------------------
+       IMAGE UPLOAD & MOCK FACE-ANALYSIS API LOGIC
+       ----------------------------- */
+    const startScreen = document.getElementById('start-screen');
+    const uploadScreen = document.getElementById('upload-screen');
+    const fileUploadInput = document.getElementById('file-upload');
+    const uploadedImage = document.getElementById('uploaded-image');
+    
+    const loadingUI = document.getElementById('analysis-loading');
+    const contentUI = document.getElementById('analysis-content');
+    const elFaceType = document.getElementById('api-face-type');
+    const elSkinTone = document.getElementById('api-skin-tone');
+    const elTitle = document.getElementById('api-title');
+    const elDesc = document.getElementById('api-desc');
+
+    // Holds the CURRENTLY uploaded photo as a base64 data URI (e.g. "data:image/jpeg;base64,...").
+    // This is sent to the real AR API on every request so the returned image always
+    // reflects whichever photo the user most recently uploaded.
+    let uploadedImageBase64 = null;
+
+    // MOCK API — face/skin analysis. Leave as-is until a real endpoint replaces it.
+    function fetchFaceAnalysisMockAPI(imageFile) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const jsonResponse = {
+                    "status": 200,
+                    "data": {
+                        "face_type": "OVAL",
+                        "skin_tone": "FAIR",
+                        "title": "Your Face Shape is Oval",
+                        "description": "Perfectly proportioned and endlessly versatile, every jewellery style, from contemporary to statement, complements you beautifully."
+                    }
+                };
+                resolve(jsonResponse);
+            }, 2000); 
+        });
+    }
+
+    document.getElementById('btn-upload').addEventListener('click', () => {
+        fileUploadInput.click();
+    });
+
+    fileUploadInput.addEventListener('change', async (event) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            const imageUrl = URL.createObjectURL(file);
+            
+            uploadedImage.src = imageUrl;
+            startScreen.style.display = "none";
+            uploadScreen.style.display = "block";
+            
+            loadingUI.style.display = "flex";
+            contentUI.style.display = "none";
+
+            // Keep a base64 copy of THIS upload so the real AR API always gets the
+            // currently selected photo (important when the user reuploads a different image).
+            uploadedImageBase64 = null;
+            const base64Reader = new FileReader();
+            base64Reader.onload = (e) => { uploadedImageBase64 = e.target.result; };
+            base64Reader.readAsDataURL(file);
+
+            try {
+                const result = await fetchFaceAnalysisMockAPI(file);
+                
+                const data = result.data;
+                elFaceType.innerText = data.face_type;
+                elSkinTone.innerText = data.skin_tone;
+                elTitle.innerText = data.title;
+                elDesc.innerText = data.description;
+                
+                loadingUI.style.display = "none";
+                contentUI.style.display = "block";
+
+            } catch (error) {
+                console.error("API failed", error);
+                loadingUI.innerText = "Analysis failed. Please try again.";
+            }
+        }
+    });
+
+    document.getElementById('upload-close-btn').addEventListener('click', () => {
+        uploadScreen.style.display = "none";
+        startScreen.style.display = "flex"; 
+        uploadedImage.src = "";
+        fileUploadInput.value = ''; 
+    });
+
+    document.getElementById('btn-reupload-card').addEventListener('click', () => {
+        fileUploadInput.click(); 
+    });
+
+    document.getElementById('vto-reupload-btn').addEventListener('click', () => {
+      fileUploadInput.value = '';
+      fileUploadInput.click();
+    });
+
+
+    /* -----------------------------
+       VTO LOGIC (Scan Face & Explore)
+       ----------------------------- */
+    const VTO_URL = "https://jewel-aug-dev.adamastech.org/shape-of-you/overlay-preview-alt";
+
+    // Domain for the REAL AR try-on API used only in the "Upload your Image" (Photo) flow.
+    const AR_DOMAIN = "https://jeweldev.adamastech.org";
+
+    const appContainer = document.getElementById('app-container');
+    const iframe = document.getElementById('vto-iframe');
+    const vtoPhotoImg = document.getElementById('vto-photo-img');
+    const vtoPhotoOverlayImg = document.getElementById('vto-photo-overlay-img');
+    const vtoReuploadBtn = document.getElementById('vto-reupload-btn');
+    const photoArLoading = document.getElementById('photo-ar-loading');
+    const carousel = document.getElementById('carousel');
+    const loadingText = document.getElementById('loading-text');
+
+    const catalog = {
+        "NECKLACE": [
+            { sku: "DGN-D000733269", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DGN-D000733269.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100231Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=59df9908cd1fefc459145bf7e992634e76681bb63923ec708614630a2c895bb6" },
+            { sku: "DGN-D000733269", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DGN-D000733269.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100231Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=59df9908cd1fefc459145bf7e992634e76681bb63923ec708614630a2c895bb6" },
+            { sku: "GN-D000702757", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GN-D000702757.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T101340Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=4782a1e593d6215beeaf8cc1a7cdaec2d991c86b24bfa5bde373d3ef2e524492" }
+        ],
+        "EARRING": [
+            { sku: "GJ-D000460295", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GJ-D000460295.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T101017Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=e2bb0d6ca2b27d1386ff045f3922130a3026c9caa5f15a0fd7991c7e95ca9dc8" }
+        ],
+        "BANGLE": [
+            { sku: "GCH-D000269290", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GCH-D000269290.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100822Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=1c4158412109023ad5a4eba10b4bbb69caf30e06a558aa1f8c1e12ee44966fec" }
+        ],
+        "RING": [
+            { sku: "DLR-D000599872", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DLR-D000599872.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6DTMVRPMD6%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T082806Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBcaCmFwLXNvdXRoLTEiRzBFAiEA73jtuWRfrR7CeIxuaNMa21vFjSe7p4OXtlZ7oO%2Fzv6ECIC0OUV%2Bo6RDQoNgzqzu9qAgM1HLSu0DNUxeSddbB2kVMKskFCOH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMOTg0OTI3NzkzMDMxIgzZ0A2dQVihjCqPFVEqnQV4aaij%2BlypJnPCotLjBO1GcrWsNvCoUl9ma2lYEoGVEZsyqUsHXAmxxy6Qwa02f4EfJu1h4WmIHoxm3AH2BxkCwi%2FMu8%2FU5JvvPWDD4NdGiN9s0AL0LRTcih3XGZxWM361xDuOMVyUzkNjU6xbJcNroVphpyW68DmxypUTA%2BuKMGbih4%2FKvlARRHoHunSiO8PXt%2BsCX0weQCUdtepr4Hwypy53kvLLHwHLANhnN0cieKbeh4ShWUNWWo0BI2OEmm7HceuQMVU5TOEeSSFQa2UeHZ6gNbQOnc5Hl5%2B4%2Bmj59XpdpAi7KVAxj2LjIBHAn6kTjNiOEc8xn2poGsLhYNFAqvuCLLfnljt%2Fv2AMGiGmjVfQXpgMWITC%2BzUpsiXpf9KmYmuuJCcV64OW3rbEwDW6i6uXuPwsQbOvQw1bh1nAEX0zaZnF%2FRYI0n7fGRolw9Eqv6UtIqCheAqQOrGEKrsUSEzBEZmosh256NQs%2BfV9ogYDEdocYd56jt30jlKsr2etHJoswDGy2pEQEvGNTbGUn1vRs%2FSgRM6c%2B5ZtzgqWUm%2F%2B4N1vl8tfNAHVsSI3V3S9jbs8GHa2Pp7TKfk4OvRhtpVqhTDJi7pf5CdLm1ZIJUNcRBLvnV%2BFnOSPdJEQj80YbEAlsR2UQtbpcVEJiIM%2BxE%2F1TaaE8iaKTwLr8fre2spbRdVTu3vWBBiwQyjDv%2Fq6G7bxyj%2BMJp14OqpGRQVOmCCpEtGBYtewoTBxCgm1Vz0HeqOawGLoyfhZ2fU%2BHepEfdbH6RI%2Bniafn6cb%2F4niqfmhGwfnXlzbFLPAdeuc00S06kUQL7Yl%2BP71ETm8aV7pKHgE9R0NgrkmEkaxLFJdAC5rGqinFvvoMgclONvRCvlRq3ypocgws1xKcEAw7MGe1QY6sQGGs0%2BA8GFFhJb7mX4ZTo%2B5rPilvcYhpSQffvnEfZKoQmZ1Va%2FDQeNEiaUMYoXI6iUuqp0Ky62b7fiTQJm2ecxqi0%2BXu6XpYrnp8%2FTsPuq0j6GprLy8NQpDCI0%2BlpPLzZhgESCEvZL%2FMR4DVR7D2fywLWeXHEiowfinrwt6cD4zvztT4VFTzBL1fB7MyZfJjFiKvaTojpIh8Mkk7XagJGdB6AZXAKy0mL389tpaCYdOCvU%3D&X-Amz-Signature=b472a6b95b52283695b8f1e0a2341c8f54d1aa162aea13f4949be4d3f978aaaf" }
+        ]
+    };
+
+    let currentCategory = "NECKLACE";
+    let iframeReady = false;
+    let iframeReadyTimeout = null;   // ADD THIS
+    let selectedProductKey = null;
+
+    function resetDefaultCatalogSelection() {
+      document.querySelectorAll('.cat-btn').forEach(button => button.classList.remove('active'));
+      document.getElementById('cat-necklace').classList.add('active');
+      currentCategory = "NECKLACE";
+      selectedProductKey = null;
+    }
+
+    /* -----------------------------------------------------------
+       REAL AR TRY-ON API — used ONLY in the Upload Image (Photo) flow.
+       Scan Face / Live View keeps using the existing iframe + postMessage flow untouched.
+       ----------------------------------------------------------- */
+
+    // Maps our category names to the product-id keys the real API expects.
+    // Update these keys once you confirm the real endpoint's field names for earring/bangle/ring.
+    // Every request also includes the CURRENTLY uploaded photo, so a different
+    // upload always produces a result rendered on that new photo.
+    function buildArRequestBody(category, sku) {
+        const base = { image_data: uploadedImageBase64 };   // ← was "image"
+        switch (category) {
+            case "NECKLACE": return { ...base, necklace_product_id: sku };
+            case "EARRING":  return { ...base, earring_product_id: sku };
+            case "BANGLE":   return { ...base, bangle_product_id: sku };
+            case "RING":     return { ...base, ring_product_id: sku };
+            default:         return { ...base, necklace_product_id: sku };
+        }
+    }
+
+    // ADD THIS FUNCTION
+    function loadVtoIframeIfNeeded(forceReload = false) {
+        if (iframeReady && !forceReload) return;
+
+        clearTimeout(iframeReadyTimeout);
+        iframeReady = false;
+        loadingText.style.display = "flex";
+
+        // cache-bust so a stalled/failed load isn't silently reused
+        iframe.src = VTO_URL + (VTO_URL.includes('?') ? '&' : '?') + '_r=' + Date.now();
+
+        iframeReadyTimeout = setTimeout(() => {
+            if (!iframeReady) {
+                console.warn("VTO iframe didn't confirm ready in time, retrying...");
+                loadVtoIframeIfNeeded(true); // one automatic retry
+            }
+        }, 8000); // tweak this timeout as needed
+    }
+
+
+
+    function callFaceNecklaceEarringAPI(category, sku) {
+        if (!uploadedImageBase64) {
+            console.error("No uploaded image available yet — cannot call AR API.");
+            return;
+        }
+
+        const requestBody = buildArRequestBody(category, sku);
+
+        photoArLoading.style.display = "flex";
+
+        fetch(`${AR_DOMAIN}/api/image-augmentation/face_necklace_earring_v3`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("AR API response:", data);
+
+            photoArLoading.style.display = "none";
+
+            // Case 1: backend couldn't render an overlay (e.g. neck/ears/wrist not visible)
+            if (data.message === "No overlays could be rendered.") {
+                Swal.fire({
+                    title: 'Couldn\'t Apply Jewellery',
+                    text: 'We couldn\'t detect that part of your photo clearly. Try a photo where your neck/ears/wrist (depending on category) is fully visible.',
+                    icon: 'warning',
+                    confirmButtonText: 'Okay',
+                    background: '#1a0508',
+                    color: '#fff',
+                    iconColor: '#f0002b'
+                });
+                return;
+            }
+
+            // Case 2: success — swap in the rendered photo
+            if (data.success && data.image) {
+                vtoPhotoImg.src = data.image;
+                vtoPhotoImg.style.display = "block";
+
+                vtoPhotoOverlayImg.style.display = "none";
+                vtoPhotoOverlayImg.src = "";
+                return;
+            }
+
+            // Case 3: anything else unexpected
+            console.error("AR API did not return a usable image:", data);
+        })
+        .catch(err => {
+            console.error("Augmentation API failed", err);
+            photoArLoading.style.display = "none";
+        });
+    }
+
+    // Triggered when user clicks Explore Jewellery from the uploaded photo result
+    document.getElementById('btn-explore-card').addEventListener('click', () => {
+        
+        Swal.fire({
+          title: 'Jewellery Suggestion Ready! 💎',
+          text: 'We’ve found a beautiful jewellery suggestion that complements your style.',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 2200,
+          timerProgressBar: true,
+          background: '#1a0508',
+          color: '#fff',
+          iconColor: '#f0002b'
+      }).then(() => {
+            // Hide the upload summary screen
+            uploadScreen.style.display = "none";
+            
+            // Set the VTO app container to Photo View
+            appContainer.style.display = "block";
+            scanFaceFlowActive = false;
+            scanPhotoCaptured = false;
+            resetDefaultCatalogSelection();
+            
+            // Activate the Photo toggle & Deactivate Video toggle
+            document.getElementById('btn-photo').classList.add('active');
+            document.getElementById('btn-live').classList.remove('active');
+            vtoReuploadBtn.style.display = "flex";
+            
+            // Show the static image, hide the iframe
+            vtoPhotoImg.src = uploadedImage.src;
+            vtoPhotoImg.style.display = "block";
+            iframe.style.display = "none";
+            vtoPhotoOverlayImg.style.display = "none";
+            vtoPhotoOverlayImg.src = "";
+            
+            // Instantly render carousel as they are looking at a static photo now
+            renderCarousel(currentCategory, true);
+
+        });
+    });
+
+    // Toggle behavior: VIDEO
+    document.getElementById('btn-live').addEventListener('click', () => {
+      stopPhotoCamera();
+        document.getElementById('btn-live').classList.add('active');
+        document.getElementById('btn-photo').classList.remove('active');
+        vtoReuploadBtn.style.display = "none";
+        
+        vtoPhotoImg.style.display = "none";
+        vtoPhotoOverlayImg.style.display = "none";
+        photoArLoading.style.display = "none";
+        iframe.style.display = "block";
+        
+        if (!iframeReady) {
+            loadingText.style.display = "flex";
+        }
+        // if (!iframe.src) { iframe.src = VTO_URL; }
+        loadVtoIframeIfNeeded();
+    });
+
+    // Standard Scan Face behavior (defaults to Video) — still uses the iframe flow
+    document.getElementById('btn-scan').addEventListener('click', () => {
+        startScreen.style.display = "none";
+        appContainer.style.display = "block";
+      scanFaceFlowActive = true;
+      scanPhotoCaptured = false;
+        resetDefaultCatalogSelection();
+        
+        document.getElementById('btn-live').classList.add('active');
+        document.getElementById('btn-photo').classList.remove('active');
+        vtoReuploadBtn.style.display = "none";
+        
+        vtoPhotoImg.style.display = "none";
+        vtoPhotoOverlayImg.style.display = "none";
+        iframe.style.display = "block";
+        loadingText.style.display = "flex";
+        
+        // if (!iframe.src) { iframe.src = VTO_URL; }
+        loadVtoIframeIfNeeded();
+    });
+
+    document.getElementById('vto-close-btn').addEventListener('click', () => {
+        stopPhotoCamera();
+        scanFaceFlowActive = false;
+        scanPhotoCaptured = false;
+        clearTimeout(iframeReadyTimeout);   // ADD THIS LINE
+        iframe.src = "";
+        iframeReady = false;
+        appContainer.style.display = "none";
+        startScreen.style.display = "flex";
+        vtoReuploadBtn.style.display = "none";
+        vtoPhotoOverlayImg.src = "";
+        vtoPhotoOverlayImg.style.display = "none";
+    });
+
+    window.addEventListener("message", (event) => {
+        const data = event.data || {};
+        if (data.type === "overlay-preview-ready") {
+            iframeReady = true;
+            clearTimeout(iframeReadyTimeout);
+            loadingText.style.display = "none";
+            
+            // Refresh the product thumbnails without selecting a product.
+            renderCarousel(currentCategory, true);
+        }
+    });
+
+    function sendSinglePayload(category, sku) {
+        if (!iframeReady || !iframe.contentWindow) return;
+        const payload = {
+            type: "overlay-products",
+            category: category,
+            overlay_config_type: "single_category",
+        product_ids: sku ? [sku] : [],
+        items: sku ? [{ product_id: sku, category: category }] : []
+        };
+        iframe.contentWindow.postMessage(payload, "*");
+    }
+
+    function renderCarousel(categoryName, selectInitialProduct = false) {
+        carousel.innerHTML = ""; 
+        const items = catalog[categoryName];
+        if(!items) return;
+        
+        items.slice(0, 5).forEach((item, index) => {
+            const circle = document.createElement('div');
+            circle.className = 'product-circle';
+            circle.style.overflow = 'hidden'; 
+            circle.style.animationDelay = `${index * 0.08}s`;
+
+            const productKey = `${categoryName}:${index}:${item.sku}`;
+            const shouldSelectInitialProduct = selectInitialProduct && index === 0;
+            if (shouldSelectInitialProduct) {
+              circle.classList.add('active');
+              selectedProductKey = productKey;
+
+              if (vtoPhotoImg.style.display === "block") {
+                callFaceNecklaceEarringAPI(categoryName, item.sku);
+              } else {
+                sendSinglePayload(categoryName, item.sku);
+              }
+            }
+            
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.sku;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover'; 
+            
+            circle.appendChild(img);
+            
+            circle.addEventListener('click', () => {
+                document.querySelectorAll('.product-circle').forEach(c => c.classList.remove('active'));
+
+              if (selectedProductKey === productKey) {
+                selectedProductKey = null;
+                if (vtoPhotoImg.style.display === "block") {
+                  vtoPhotoImg.src = uploadedImageBase64 || uploadedImage.src;
+                  vtoPhotoOverlayImg.style.display = "none";
+                } else {
+                  sendSinglePayload(categoryName, null);
+                }
+                return;
+              }
+
+              circle.classList.add('active');
+              selectedProductKey = productKey;
+
+                const isPhotoMode = vtoPhotoImg.style.display === "block";
+
+                if (isPhotoMode) {
+                    // Upload-your-image flow → hit the real AR augmentation API
+                    callFaceNecklaceEarringAPI(categoryName, item.sku);
+                } else {
+                    // Scan Face / Live View flow → keep sending to the iframe as before
+                    sendSinglePayload(categoryName, item.sku);
+                }
+            });
+            carousel.appendChild(circle);
+        });
+    }
+
+    function switchCategory(buttonId, categoryStr) {
+        ['cat-earrings', 'cat-necklace', 'cat-bangle', 'cat-ring'].forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById(buttonId).classList.add('active');
+        currentCategory = categoryStr;
+        selectedProductKey = null;
+
+        if (vtoPhotoImg.style.display === "block") {
+          vtoPhotoImg.src = uploadedImageBase64 || uploadedImage.src;
+          vtoPhotoOverlayImg.style.display = "none";
+        } else {
+          sendSinglePayload(categoryStr, null);
+        }
+
+        renderCarousel(categoryStr, true);
+
+    }
+
+    document.getElementById('cat-earrings').addEventListener('click', () => switchCategory('cat-earrings', 'EARRING'));
+    document.getElementById('cat-necklace').addEventListener('click', () => switchCategory('cat-necklace', 'NECKLACE'));
+    document.getElementById('cat-bangle').addEventListener('click', () => switchCategory('cat-bangle', 'BANGLE'));
+    document.getElementById('cat-ring').addEventListener('click', () => switchCategory('cat-ring', 'RING'));
+
+
+
+    const scanVideo = document.getElementById('scan-capture-video');
+    const scanCanvas = document.getElementById('scan-capture-canvas');
+    const scanCaptureBtn = document.getElementById('scan-capture-btn');
+    const photoGuidance = document.getElementById('photo-guidance');
+    const scanPhotoActions = document.getElementById('scan-photo-actions');
+    const scanRetakeBtn = document.getElementById('scan-retake-btn');
+    let scanStream = null;
+    let photoCameraRequested = false;
+    let scanFaceFlowActive = false;
+    let scanPhotoCaptured = false;
+
+    function stopPhotoCamera() {
+      photoCameraRequested = false;
+      if (scanStream) {
+        scanStream.getTracks().forEach(track => track.stop());
+        scanStream = null;
+      }
+      scanVideo.srcObject = null;
+      scanVideo.style.display = "none";
+      scanCaptureBtn.style.display = "none";
+      scanPhotoActions.style.display = "none";
+      photoGuidance.hidden = true;
+      document.querySelector('.top-toggle-container').style.display = "flex";
+      document.getElementById('carousel').style.display = "flex";
+      document.querySelector('.bottom-category-container').style.display = "flex";
+    }
+
+    document.getElementById('btn-photo').addEventListener('click', () => {
+      stopPhotoCamera();
+        document.getElementById('btn-photo').classList.add('active');
+        document.getElementById('btn-live').classList.remove('active');
+        vtoReuploadBtn.style.display = scanFaceFlowActive ? "none" : "flex";
+
+        if (!scanFaceFlowActive) {
+          clearTimeout(iframeReadyTimeout);
+          iframe.src = "";
+          iframeReady = false;
+        }
+
+        if (scanFaceFlowActive) {
+          clearTimeout(iframeReadyTimeout);
+          iframe.src = "";
+          iframeReady = false;
+        }
+
+        iframe.style.display = "none";
+        loadingText.style.display = "none";
+        vtoPhotoImg.style.display = "none";
+
+        if (!scanFaceFlowActive || scanPhotoCaptured) {
+          vtoPhotoImg.style.display = "block";
+          iframe.style.display = "none";
+          loadingText.style.display = "none";
+          if (vtoPhotoOverlayImg.src) {
+            vtoPhotoOverlayImg.style.display = "block";
+          }
+          return;
+        }
+
+        // Keep the mode toggle visible so the user can switch back to Video.
+        document.getElementById('carousel').style.display = "none";
+        document.querySelector('.bottom-category-container').style.display = "none";
+
+        photoCameraRequested = true;
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+            .then(stream => {
+            if (!photoCameraRequested) {
+              stream.getTracks().forEach(track => track.stop());
+              return;
+            }
+                scanStream = stream;
+                scanVideo.srcObject = stream;
+                scanVideo.style.display = "block";
+                scanCaptureBtn.style.display = "block";
+                photoGuidance.hidden = false;
+            })
+            .catch(err => {
+                console.error("Camera access failed", err);
+                stopPhotoCamera();
+
+                Swal.fire({
+                    title: 'Camera Unavailable',
+                    text: 'Please allow camera access to take a photo.',
+                    icon: 'error',
+                    background: '#1a0508',
+                    color: '#fff',
+                    iconColor: '#f0002b'
+                });
+            });
+    });
+
+    scanCaptureBtn.addEventListener('click', () => {
+        scanCanvas.width = scanVideo.videoWidth;
+        scanCanvas.height = scanVideo.videoHeight;
+        scanCanvas.getContext('2d').drawImage(scanVideo, 0, 0);
+
+        const dataUrl = scanCanvas.toDataURL('image/jpeg', 0.92);
+
+        stopPhotoCamera();
+
+        // Restore the full UI now that capture is done
+        vtoPhotoImg.src = dataUrl;
+        vtoPhotoImg.style.display = "block";
+        vtoPhotoOverlayImg.style.display = "none";
+
+        uploadedImageBase64 = dataUrl;
+        scanPhotoCaptured = true;
+        scanPhotoActions.style.display = "flex";
+        renderCarousel(currentCategory, true);
+
+    });
+
+    scanRetakeBtn.addEventListener('click', () => {
+      scanPhotoCaptured = false;
+      document.getElementById('btn-photo').click();
+    });
+
+  </script>
+</body>
+</html>
