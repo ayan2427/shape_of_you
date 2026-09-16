@@ -262,7 +262,20 @@
     body { grid-template-columns: 1fr; grid-template-rows: 46vh 54vh; }
     .video-container, .right-section { height: auto; }
     .seam { display: none; }
-    .text-content { max-width: 88%; padding: 40px 26px; }
+    .text-content {
+      width: min(78%, 280px);
+      max-width: 280px;
+      padding: 16px 14px 15px;
+    }
+    .plaque-mark { width: 22px; height: 22px; margin-bottom: 6px; }
+    .glow-text { font-size: 1.65rem; margin-bottom: 7px; }
+    .rule { width: 48px; margin-bottom: 8px; }
+    .text-content p {
+      font-size: .75rem;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+    button#explode-btn { padding: 9px 20px; font-size: .75rem; }
     .frame-corner { width: 32px; height: 32px; }
     .video-label { bottom: 20px; left: 20px; font-size: .9rem; }
   }

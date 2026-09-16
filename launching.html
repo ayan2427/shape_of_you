@@ -970,7 +970,12 @@
     /* --- RESPONSIVE ADJUSTMENTS --- */
     @media (max-width: 700px) {
       .launching-page { min-height: 560px; }
-      .background { object-position: 58% center; }
+      .background {
+        object-fit: cover !important;
+        object-position: 0% 50% !important;
+        transform: none !important;
+        animation: none !important;
+      }
       #start-screen { margin-top: -7vh; }
       .brand-title { font-size: clamp(52px, 15vw, 76px); letter-spacing: -4px; }
       .of { margin-left: -40px; }
