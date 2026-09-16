@@ -1011,10 +1011,27 @@
       .bottom-category-container { bottom: 105px; width: max-content; max-width: 96vw; overflow-x: auto; }
       .cat-btn { padding: 8px 14px; font-size: 13px; }
       
-      .analysis-card { width: 92%; padding: 20px 16px; bottom: 20px;}
-      .analysis-stats { gap: 40px; }
-      .analysis-actions { flex-direction: column; gap: 10px; }
-      .card-btn { width: 100%; }
+      #upload-screen { height: 100dvh; }
+      .analysis-card {
+        width: min(92vw, 420px);
+        max-height: calc(100dvh - 86px);
+        bottom: max(12px, env(safe-area-inset-bottom));
+        padding: 14px 12px;
+        overflow-y: auto;
+      }
+      .analysis-stats { gap: 28px; margin-bottom: 10px; }
+      .stat-value { font-size: 18px; }
+      .stat-label { font-size: 12px; }
+      .analysis-desc { margin-bottom: 12px; }
+      .analysis-desc strong { font-size: 14px; margin-bottom: 5px; }
+      .analysis-desc p { font-size: 12px; line-height: 1.35; }
+      .analysis-actions { flex-direction: column; gap: 8px; }
+      .card-btn {
+        width: 100%;
+        min-height: 42px;
+        padding: 10px 12px;
+        font-size: 13px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
