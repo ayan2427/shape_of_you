@@ -20,7 +20,7 @@
       height: 100%;
       overflow: hidden;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f7fbff;
+      background: #5e1018;
     }
 
     .launching-page {
@@ -33,7 +33,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f7fbff;
+      background: #5e1018;
     }
 
     .background {
@@ -44,8 +44,8 @@
       object-fit: cover;
       object-position: center;
       z-index: -5;
-      opacity: .16;
-      filter: saturate(.7) brightness(1.18);
+      opacity: 1;
+      filter: saturate(.92) brightness(.86);
       transform: scale(1.025);
       animation: kenBurns 22s ease-in-out infinite alternate;
     }
@@ -59,14 +59,14 @@
       position: absolute;
       inset: 0;
       z-index: -4;
-      background: rgba(255, 255, 255, .78);
+      background: transparent;
     }
 
     .focus-overlay {
       position: absolute;
       inset: 0;
       z-index: -3;
-      background: rgba(231, 243, 255, .62);
+      background: transparent;
     }
 
     .vignette {
@@ -85,31 +85,32 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      opacity: .72;
+      opacity: .14;
       pointer-events: none;
       mix-blend-mode: multiply;
     }
 
     .back-button {
       position: absolute;
-      top: 30px;
-      left: 32px;
+      top: 22px;
+      left: 34px;
+      right: auto;
       z-index: 20;
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 26px;
-      color: #17324d;
+      padding: 10px 16px;
+      color: #6b1018;
       text-decoration: none;
       font-size: 15px;
       font-weight: 700;
       letter-spacing: .2px;
-      border: 1px solid rgba(255, 255, 255, .32);
+      border: 1px solid rgba(126, 75, 25, .55);
       border-radius: 12px;
-      background: rgba(255, 255, 255, .72);
-      box-shadow: 0 8px 24px rgba(31, 76, 120, .16);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(247, 220, 181, .72);
+      box-shadow: 0 5px 14px rgba(93, 38, 15, .16), inset 0 0 0 1px rgba(255, 239, 201, .5);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       opacity: 0;
       transform: translateY(-12px);
       animation: backIn .7s ease forwards 1.1s;
@@ -117,11 +118,63 @@
     }
 
     .back-button:hover {
-      background: #1769d1;
-      color: #fff;
-      border-color: #00bfff;
+      background: rgba(247, 220, 181, .84);
+      color: #8f281f;
+      border-color: rgba(126, 75, 25, .7);
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(22, 79, 135, .28), 0 0 20px rgba(0, 191, 255, .35);
+      box-shadow: 0 7px 16px rgba(93, 38, 15, .18), inset 0 0 0 1px rgba(255, 239, 201, .5);
+    }
+
+    .brand-header {
+      position: absolute;
+      top: 22px;
+      left: 7.5vw;
+      right: 7.5vw;
+      z-index: 10;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(126, 75, 25, .7);
+    }
+
+    .brand-header::after {
+      content: "✦";
+      position: absolute;
+      left: 50%;
+      bottom: -13px;
+      padding: 0 12px;
+      color: #966523;
+      background: rgba(215, 169, 111, .5);
+      transform: translateX(-50%);
+      font-size: 18px;
+    }
+
+    .senco-mark {
+      width: max-content;
+      color: #77151a;
+      line-height: 1;
+      text-align: center;
+      font-family: Georgia, serif;
+      font-size: 19px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .senco-mark::before {
+      content: "♢";
+      display: inline-block;
+      margin-right: 8px;
+      color: #9b681f;
+      font-size: 30px;
+      vertical-align: -5px;
+    }
+
+    .senco-mark small {
+      display: block;
+      margin-top: 3px;
+      margin-left: 36px;
+      font-family: Arial, sans-serif;
+      font-size: 7px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
     }
 
     /* --- START SCREEN UI --- */
@@ -130,25 +183,26 @@
       z-index: 5;
       width: min(760px, 92vw);
       text-align: center;
-      color: #102a43;
+      color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: -4vh;
+      margin-top: 4vh;
     }
 
     .brand-title {
       position: relative;
       display: flex;
+      font-family: Georgia, "Times New Roman", serif;
       flex-direction: column;
       align-items: center;
-      font-size: clamp(58px, 7vw, 96px);
+      font-size: clamp(58px, 7vw, 94px);
       line-height: 1;
-      font-weight: 300;
-      letter-spacing: -5px;
+      font-weight: 400;
+      letter-spacing: -3px;
       text-shadow:
-        0 5px 28px rgba(34, 78, 120, .18),
-        0 0 35px rgba(27, 94, 170, .12);
+        0 5px 22px rgba(89, 36, 18, .16),
+        0 0 35px rgba(255, 241, 208, .22);
       perspective: 900px;
       user-select: none;
     }
@@ -181,7 +235,7 @@
     }
 
     .brand-title.shine .letter {
-      color: #174a7c;
+      color: #fff;
     }
 
     .of {
@@ -189,7 +243,7 @@
       font-weight: 400;
       line-height: 1;
       margin: 18px 0;
-      text-shadow: 0 4px 15px rgba(255, 255, 255, .8), 0 0 25px rgba(35, 112, 190, .22);
+      text-shadow: 0 4px 15px rgba(255, 239, 201, .8), 0 0 25px rgba(112, 48, 15, .16);
     }
 
     .you { margin-top: 6px; }
@@ -203,17 +257,27 @@
     }
 
     .title-line {
+      display: none;
       width: 0;
       height: 1px;
       margin-top: 28px;
-      background: rgba(19, 91, 160, .72);
-      box-shadow: 0 0 15px rgba(24, 112, 196, .38);
+      background: rgba(126, 75, 25, .8);
+      box-shadow: 0 0 15px rgba(154, 101, 31, .38);
       transition: width 1s cubic-bezier(.16, 1, .3, 1);
     }
 
     .title-line.show {
-      width: 150px;
+      width: 180px;
       animation: linePulse 2.8s ease-in-out 1s infinite;
+    }
+
+    .subtitle {
+      margin-top: 15px;
+      color: #6d342d;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      font-style: italic;
+      letter-spacing: .4px;
     }
 
     @keyframes linePulse {
@@ -226,7 +290,7 @@
       align-items: center;
       justify-content: center;
       gap: 24px;
-      margin-top: 42px;
+      margin-top: 40px;
       opacity: 0;
       transform: translateY(28px) scale(.96);
       pointer-events: none;
@@ -240,18 +304,19 @@
     .action-button {
       position: relative;
       overflow: hidden;
-      min-width: 340px;
-      height: 68px;
-      padding: 0 40px;
-      border: 1px solid rgba(255, 255, 255, .18);
-      border-radius: 14px;
-      background: #1769d1;
-      color: #fff;
-      font-size: 19px;
+      min-width: 270px;
+      height: 76px;
+      padding: 0 34px;
+      border: 1px solid rgba(126, 75, 25, .55);
+      border-radius: 12px;
+      background: rgba(247, 220, 181, .72);
+      color: #6b1018;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: .3px;
       cursor: pointer;
-      box-shadow: 0 12px 34px rgba(22, 79, 135, .24), 0 0 0 rgba(23, 105, 209, 0);
+      box-shadow: 0 5px 14px rgba(93, 38, 15, .16), inset 0 0 0 1px rgba(255, 239, 201, .5);
       transition: transform .25s ease, background .25s ease, box-shadow .25s ease;
     }
 
@@ -262,25 +327,34 @@
       left: -75%;
       width: 45%;
       height: 100%;
-      background: rgba(255, 255, 255, .24);
+      background: rgba(255, 249, 224, .35);
       transform: skewX(-20deg);
       transition: left .65s ease;
+    }
+
+    .action-button svg path {
+      stroke: #6b1018;
     }
 
     .action-button:hover::before { left: 130%; }
 
     .action-button:hover {
-      background: #0f56b4;
+      background: rgba(247, 220, 181, .84);
+      color: #8f281f;
       transform: translateY(-3px);
-      box-shadow: 0 13px 32px rgba(22, 79, 135, .28), 0 0 25px rgba(23, 105, 209, .22);
+      box-shadow: 0 7px 16px rgba(93, 38, 15, .18), inset 0 0 0 1px rgba(255, 239, 201, .5);
+    }
+
+    .action-button:hover svg path {
+      stroke: #8f281f;
     }
 
     .action-button:active { transform: translateY(0); }
 
     .separator {
-      color: #fff;
+      color: #7b3f25;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       opacity: .9;
     }
 
@@ -950,16 +1024,11 @@
 <body>
 
   <main class="launching-page">
-    <img class="background" src="e4a91ee7-eb01-4037-98e2-8f3e5f8da72c.png" alt="" />
+    <img class="background" src="Static/launching_image/background.jpeg" alt="" />
     <div class="red-overlay"></div>
     <div class="focus-overlay"></div>
     <div class="vignette"></div>
     <canvas id="meshCanvas"></canvas>
-
-    <div class="scan-corner tl"></div>
-    <div class="scan-corner tr"></div>
-    <div class="scan-corner bl"></div>
-    <div class="scan-corner br"></div>
 
     <a class="back-button" href="index.html" aria-label="Go back">
       <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg> Home</span>
@@ -987,7 +1056,7 @@
         </span>
       </h1>
 
-      <div class="title-line" id="titleLine"></div>
+      <div class="subtitle">Try Jewellery &nbsp; • &nbsp; Find Your Perfect Look</div>
 
       <div class="actions" id="actions">
         <!-- Hidden file input for uploading -->
@@ -1105,7 +1174,6 @@
        TITLE INTRO ANIMATION
        ----------------------------- */
     const title = document.getElementById("brandTitle");
-    const titleLine = document.getElementById("titleLine");
     const actions = document.getElementById("actions");
 
     window.addEventListener("load", () => {
@@ -1114,7 +1182,6 @@
         document.querySelectorAll(".scan-corner").forEach(el => el.classList.add("active"));
       }, 350);
 
-      setTimeout(() => { titleLine.classList.add("show"); }, 1450);
       setTimeout(() => { actions.classList.add("show"); }, 1900);
       setTimeout(() => { title.classList.add("shine"); }, 1600);
     });
@@ -1311,19 +1378,34 @@
 
     const catalog = {
         "NECKLACE": [
-            { sku: "DGN-D000733269", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DGN-D000733269.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100231Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=59df9908cd1fefc459145bf7e992634e76681bb63923ec708614630a2c895bb6" },
-            { sku: "DGN-D000733269", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DGN-D000733269.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100231Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=59df9908cd1fefc459145bf7e992634e76681bb63923ec708614630a2c895bb6" },
-            { sku: "GN-D000702757", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GN-D000702757.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T101340Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=4782a1e593d6215beeaf8cc1a7cdaec2d991c86b24bfa5bde373d3ef2e524492" }
-        ],
-        "EARRING": [
-            { sku: "GJ-D000460295", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GJ-D000460295.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T101017Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=e2bb0d6ca2b27d1386ff045f3922130a3026c9caa5f15a0fd7991c7e95ca9dc8" }
-        ],
-        "BANGLE": [
-            { sku: "GCH-D000269290", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/GCH-D000269290.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6D6ORQQZXW%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T100822Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBgaCmFwLXNvdXRoLTEiRjBEAiABdhKJZ8hp8sJFbu5DqQHxdO1ZiKgbnxOBKr4lxF6LmQIgc1qzKd6366%2FNDeiYkGZ7FBbJdIXUERHONBy3LI1or6gqyQUI4v%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAAGgw5ODQ5Mjc3OTMwMzEiDFz9QYWiHJeBtMbTsyqdBajBkhy4JBUVAC7JsoJIzWUx3EiU%2B8K9aZVms97zYRc0ZEa6%2FLEacvvfcSNx2RbCzFEOBtplo2%2BT%2FGwmeYs%2BXFn4AaJhMMyTfhm3QlquLGcPUrrffo8s9kR6%2FWjLywoXx8LBd%2B1Qcvw1nL8qdiq2rIUDhFIfC%2FqBz2wx1KK8Aixgfav5FUHQCYfvwx82nQQC7mWlZfFy0gNNgTYZlDfP3ATNi%2BgI8t0m%2BF9KJ2Vsiodg2AGdXLzGQfIQ130I2Fv5VpJo9Ix22U18xY%2B1zDUk5SdrAl4l91IeBOdpOBB8zYC0F0mma2vS74DssYAUCKuqGw8%2BjmS%2Bep3K5Re3erl9nGkPWlfy%2FHNT%2BUTlPyV8Uoo9NtW1MtkEGjpA0R%2BbSzG2k%2F5KsSuXHGlWyJaLVrthdMlF3UfXxe95ZySre889SOD8Y9d9YZCbug51c%2BkDtpxNCYnaDfD4uxnyGYRK8xQTGwcKd5HptoU5Uw05MsaXZQP3G52xs9bOD2Vcn%2B%2BG6ci%2F3OIsn2utFSxAigEq8zESc6ZqLFcQOLcHCON8Q91or%2B66nEDkHMeNATQJlL3%2FZ2STvj1ogxYRyuy5AqbhnFvkcVXdmnR9pVbKpLO13CKy7c7Ji29ckqm8cwddir1cg65e2FscDwOtijDxLErOM2qo66A4z5ImzyHsqNpSD73NFB40MlIIteHey93RR9%2BdRNA%2BuH6payZaosVNHfuE1ygGp0cTWS59bOrqIiC8jui%2Bd7Kfzx7RO2DcRB8dImQiOeSCxV7fAPOlXpmUxTNyvpoHpONhmuFxJ9CUtNvkYi5iJUVgRfNaS4vzuALqkF17VSZQK4JxS%2FJoJMAugUj0EDPZ3IHvivI803J7%2BiMmVgSKYkwlLldJNfjtLBCrAejowzD63Z7VBjqyAYwy2P8ly6RBQS0rlJ5%2FBmfgloXBUt0mSR5XYB5ig7phWcU7wgvXMTNi0FFQlf4mxgFrPLebvb9DhJSh5wEKAWbW6nkZZfOjePX8v2l2rgm6kryWWTwme7E0MCifxjVeWZWqEETNKz%2FP25nz0W7zNkjUvQ7PcucxKqbxHXVPaGc6N0%2FGxaUyspCifGxQs31Wsrt1LGBXnlWORslOoYUDWGFqu47Z%2BboRFwQNnTksRiRRvxk%3D&X-Amz-Signature=1c4158412109023ad5a4eba10b4bbb69caf30e06a558aa1f8c1e12ee44966fec" }
-        ],
+            {sku: "DGN-D000799007", image: "Static/catlog/necklace/DGN-D000799007.png"},
+            {sku: "DGN-D000813018", image: "Static/catlog/necklace/DGN-D000813018.png"},
+            {sku: "GN-D000174926", image: "Static/catlog/necklace/GN-D000174926.png"},
+            {sku: "GN-D000480180", image: "Static/catlog/necklace/GN-D000480180.png"},
+            {sku: "GN-D000709222", image: "Static/catlog/necklace/GN-D000709222.png"},
+          ],
         "RING": [
-            { sku: "DLR-D000599872", image: "https://jewelscan-atc-old-dev.s3.ap-south-1.amazonaws.com/high_res_images_v3/DLR-D000599872.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIA6KUSFN6DTMVRPMD6%2F20260914%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20260914T082806Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEBcaCmFwLXNvdXRoLTEiRzBFAiEA73jtuWRfrR7CeIxuaNMa21vFjSe7p4OXtlZ7oO%2Fzv6ECIC0OUV%2Bo6RDQoNgzqzu9qAgM1HLSu0DNUxeSddbB2kVMKskFCOH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMOTg0OTI3NzkzMDMxIgzZ0A2dQVihjCqPFVEqnQV4aaij%2BlypJnPCotLjBO1GcrWsNvCoUl9ma2lYEoGVEZsyqUsHXAmxxy6Qwa02f4EfJu1h4WmIHoxm3AH2BxkCwi%2FMu8%2FU5JvvPWDD4NdGiN9s0AL0LRTcih3XGZxWM361xDuOMVyUzkNjU6xbJcNroVphpyW68DmxypUTA%2BuKMGbih4%2FKvlARRHoHunSiO8PXt%2BsCX0weQCUdtepr4Hwypy53kvLLHwHLANhnN0cieKbeh4ShWUNWWo0BI2OEmm7HceuQMVU5TOEeSSFQa2UeHZ6gNbQOnc5Hl5%2B4%2Bmj59XpdpAi7KVAxj2LjIBHAn6kTjNiOEc8xn2poGsLhYNFAqvuCLLfnljt%2Fv2AMGiGmjVfQXpgMWITC%2BzUpsiXpf9KmYmuuJCcV64OW3rbEwDW6i6uXuPwsQbOvQw1bh1nAEX0zaZnF%2FRYI0n7fGRolw9Eqv6UtIqCheAqQOrGEKrsUSEzBEZmosh256NQs%2BfV9ogYDEdocYd56jt30jlKsr2etHJoswDGy2pEQEvGNTbGUn1vRs%2FSgRM6c%2B5ZtzgqWUm%2F%2B4N1vl8tfNAHVsSI3V3S9jbs8GHa2Pp7TKfk4OvRhtpVqhTDJi7pf5CdLm1ZIJUNcRBLvnV%2BFnOSPdJEQj80YbEAlsR2UQtbpcVEJiIM%2BxE%2F1TaaE8iaKTwLr8fre2spbRdVTu3vWBBiwQyjDv%2Fq6G7bxyj%2BMJp14OqpGRQVOmCCpEtGBYtewoTBxCgm1Vz0HeqOawGLoyfhZ2fU%2BHepEfdbH6RI%2Bniafn6cb%2F4niqfmhGwfnXlzbFLPAdeuc00S06kUQL7Yl%2BP71ETm8aV7pKHgE9R0NgrkmEkaxLFJdAC5rGqinFvvoMgclONvRCvlRq3ypocgws1xKcEAw7MGe1QY6sQGGs0%2BA8GFFhJb7mX4ZTo%2B5rPilvcYhpSQffvnEfZKoQmZ1Va%2FDQeNEiaUMYoXI6iUuqp0Ky62b7fiTQJm2ecxqi0%2BXu6XpYrnp8%2FTsPuq0j6GprLy8NQpDCI0%2BlpPLzZhgESCEvZL%2FMR4DVR7D2fywLWeXHEiowfinrwt6cD4zvztT4VFTzBL1fB7MyZfJjFiKvaTojpIh8Mkk7XagJGdB6AZXAKy0mL389tpaCYdOCvU%3D&X-Amz-Signature=b472a6b95b52283695b8f1e0a2341c8f54d1aa162aea13f4949be4d3f978aaaf" }
-        ]
+            { sku: "DLR-D000255174", image: "Static/catlog/ring/DLR-D000255174.png"},
+            { sku: "DLR-D000321179", image: "Static/catlog/ring/DLR-D000321179.png"},
+            { sku: "DLR-D000599928", image: "Static/catlog/ring/DLR-D000599928.png"},
+            { sku: "DLR-D000764499", image: "Static/catlog/ring/DLR-D000764499.png"},
+            { sku: "GLR-D00061651", image: "Static/catlog/ring/GLR-D000616513.png"},
+            ],
+        "BANGLE": [
+            { sku: "GCH-D000571581", image: "Static/catlog/bangle/GCH-D000571581.png"},
+            { sku: "GPB-D000689995", image: "Static/catlog/bangle/GPB-D000689995.png"},
+            { sku: "GSB-D000284191", image: "Static/catlog/bangle/GSB-D000284191.png"},
+            { sku: "PKG-D000721266", image: "Static/catlog/bangle/PKG-D000721266.png"},
+            { sku: "GBL-D000746879", image: "Static/catlog/bangle/GBL-D000746879.png"},
+
+          ],
+        "EARRING": [
+            { sku: "DTGN-D000726242", image: "Static/catlog/earrings/DTGN-D000726242.png"},
+            { sku: "DTPN-D000731932", image: "Static/catlog/earrings/DTPN-D000731932.png"},
+            { sku: "GJ-D000700918", image: "Static/catlog/earrings/GJ-D000700918.png"},
+            { sku: "GP-D000214316", image: "Static/catlog/earrings/GP-D000214316.png"},
+            { sku: "GP-D000283533", image: "Static/catlog/earrings/GP-D000283533.png"},
+          ]
     };
 
     let currentCategory = "NECKLACE";
